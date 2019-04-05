@@ -3,24 +3,37 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PaperSpriteActor.h"
+#include "Runtime/Engine/Classes/GameFramework/Actor.h"
 #include "BarrierPaperSpriteActor.generated.h"
 
-class UPaperSpriteComponent;
-
 UCLASS()
-class FLAPPYBIRD_API ABarrierPaperSpriteActor : public APaperSpriteActor
+class FLAPPYBIRD_API ABarrierPaperSpriteActor : public AActor
 {
 	GENERATED_BODY()
 
 public:
+
 	ABarrierPaperSpriteActor(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-private:
+	//virtual void OnConstruction(const FTransform& transform) override;
 
-	UPROPERTY(Category = Sprite, VisibleAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
-		class UPaperSpriteComponent* TopRenderComponent;
+protected:
 
-	UPROPERTY(Category = Sprite, VisibleAnywhere, BlueprintReadOnly, meta = (ExposeFunctionCategories = "Sprite,Rendering,Physics,Components|Sprite", AllowPrivateAccess = "true"))
-		class UPaperSpriteComponent* DownRenderComponent;
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable, Category = "Events")
+		void DestroyMe();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		float DestroyTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		FTimerHandle TimerDestroy;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Components")
+		class UFlappyBirdPaperSpriteComponent* TopSprite;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Components")
+		class UFlappyBirdPaperSpriteComponent* DownSprite;
+
 };

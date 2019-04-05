@@ -9,6 +9,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
+#include "BarrierPaperSpriteActor.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "FlappyBirdPlayerController.h"
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 
@@ -22,9 +25,16 @@ AFlappyBirdCharacter::AFlappyBirdCharacter()
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
+	MovementAmount = 1.0f;
+	MovementFrequency = 0.01f;
+
+	BoundaryLeftX = -3000.0f;
+	BoundaryRightX = 3000.0f;
+
 	// Set the size of our collision capsule.
-	GetCapsuleComponent()->SetCapsuleHalfHeight(96.0f);
-	GetCapsuleComponent()->SetCapsuleRadius(40.0f);
+	theCapsule = GetCapsuleComponent();
+	theCapsule->SetCapsuleHalfHeight(96.0f);
+	theCapsule->SetCapsuleRadius(40.0f);
 
 	// Create a camera boom attached to the root (capsule)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -46,24 +56,28 @@ AFlappyBirdCharacter::AFlappyBirdCharacter()
 	CameraBoom->bAbsoluteRotation = true;
 	SideViewCameraComponent->bUsePawnControlRotation = false;
 	SideViewCameraComponent->bAutoActivate = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
+	ChMovement = GetCharacterMovement();
+	if (IsValid(ChMovement))
+	{
+		ChMovement->bOrientRotationToMovement = false;
 
-	// Configure character movement
-	GetCharacterMovement()->GravityScale = 2.0f;
-	GetCharacterMovement()->AirControl = 0.80f;
-	GetCharacterMovement()->JumpZVelocity = 1000.f;
-	GetCharacterMovement()->GroundFriction = 3.0f;
-	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-	GetCharacterMovement()->MaxFlySpeed = 600.0f;
+		// Configure character movement
+		ChMovement->GravityScale = 0.0f;
+		ChMovement->AirControl = 0.80f;
+		ChMovement->JumpZVelocity = 1000.f;
+		ChMovement->GroundFriction = 3.0f;
+		ChMovement->MaxWalkSpeed = 600.0f;
+		ChMovement->MaxFlySpeed = 600.0f;
 
-	// Lock character motion onto the XZ plane, so the character can't move in or out of the screen
-	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.0f, -1.0f, 0.0f));
+		// Lock character motion onto the XZ plane, so the character can't move in or out of the screen
+		ChMovement->bConstrainToPlane = true;
+		ChMovement->SetPlaneConstraintNormal(FVector(0.0f, -1.0f, 0.0f));
 
-	// Behave like a traditional 2D platformer character, with a flat bottom instead of a curved capsule bottom
-	// Note: This can cause a little floating when going up inclines; you can choose the tradeoff between better
-	// behavior on the edge of a ledge versus inclines by setting this to true or false
-	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
+		// Behave like a traditional 2D platformer character, with a flat bottom instead of a curved capsule bottom
+		// Note: This can cause a little floating when going up inclines; you can choose the tradeoff between better
+		// behavior on the edge of a ledge versus inclines by setting this to true or false
+		GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
+	}
 
     // 	TextComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("IncarGear"));
     // 	TextComponent->SetRelativeScale3D(FVector(3.0f, 3.0f, 3.0f));
@@ -103,35 +117,40 @@ void AFlappyBirdCharacter::Tick(float DeltaSeconds)
 //////////////////////////////////////////////////////////////////////////
 // Input
 
+/*
 void AFlappyBirdCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Note: the 'Jump' action and the 'MoveRight' axis are bound to actual keys/buttons/sticks in DefaultInput.ini (editable from Project Settings..Input)
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AFlappyBirdCharacter::MoveRight);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AFlappyBirdCharacter::StartJump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AFlappyBirdCharacter::StopJump);
+	//PlayerInputComponent->BindAxis("MoveRight", this, &AFlappyBirdCharacter::MoveRight);
 
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &AFlappyBirdCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &AFlappyBirdCharacter::TouchStopped);
 }
+*/
 
-void AFlappyBirdCharacter::MoveRight(float Value)
-{
-	/*UpdateChar();*/
-
-	// Apply the input to the character motion
-	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Value);
-}
-
-void AFlappyBirdCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
+void AFlappyBirdCharacter::StartJump()
 {
 	// Jump on any touch
 	Jump();
 }
 
-void AFlappyBirdCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location)
+void AFlappyBirdCharacter::StopJump()
 {
-	// Cease jumping once touch stopped
 	StopJumping();
+}
+
+
+void AFlappyBirdCharacter::MoveToRight()
+{
+	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), MovementAmount);
+	FVector CharLoc = GetActorLocation();
+	if (CharLoc.X > BoundaryRightX)
+	{
+		SetActorLocation(FVector(BoundaryLeftX, CharLoc.Y, CharLoc.Z));
+		OnCharacterGoesToLeftBoundary.Broadcast(BoundaryLeftX);
+	}
 }
 
 void AFlappyBirdCharacter::UpdateCharacter()
@@ -153,5 +172,46 @@ void AFlappyBirdCharacter::UpdateCharacter()
 		{
 			Controller->SetControlRotation(FRotator(0.0f, 0.0f, 0.0f));
 		}
+	}
+}
+
+// Begin Play
+void AFlappyBirdCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	AFlappyBirdPlayerController* theCtrlr = Cast<AFlappyBirdPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (IsValid(theCtrlr))
+	{
+		CtrlRef = theCtrlr;
+		CtrlRef->OnPlayerPressJump.AddDynamic(this, &AFlappyBirdCharacter::StartJump);
+		CtrlRef->OnPlayerReleaseJump.AddDynamic(this, &AFlappyBirdCharacter::StopJump);
+		CtrlRef->OnPlayerStartedInput.AddDynamic(this, &AFlappyBirdCharacter::PlayerStartedInput);
+	}
+	GetWorld()->GetTimerManager().SetTimer(TimerMoveRight, this, &AFlappyBirdCharacter::MoveToRight, MovementFrequency, true);
+	theCapsule->OnComponentBeginOverlap.AddDynamic(this, &AFlappyBirdCharacter::CollisionOverlapStart);
+}
+
+void AFlappyBirdCharacter::PlayerStartedInput()
+{
+	ChMovement->GravityScale = 2.0f;
+}
+
+void AFlappyBirdCharacter::CollisionOverlapStart(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	PrintOnScreen("Overlap");
+	AActor* desiredActor;
+	AActor* hitActor = SweepResult.GetActor();
+	if (hitActor == this)
+	{
+		desiredActor = OtherActor;
+	}
+	else
+	{
+		desiredActor = hitActor;
+	}
+	ABarrierPaperSpriteActor* barrier = Cast<ABarrierPaperSpriteActor>(desiredActor);
+	if (IsValid(barrier))
+	{
+		Destroy();
 	}
 }
