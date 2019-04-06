@@ -6,8 +6,10 @@
 #include "PaperCharacter.h"
 #include "FlappyBirdCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCharacterCrashed);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterGoesToLeftBoundary, float, inLeftBoundary);
 
+class AController;
 class AFlappyBirdPlayerController;
 class UCharacterMovementComponent;
 class UPaperFlipbook;
@@ -41,9 +43,16 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Map")
 		FCharacterGoesToLeftBoundary OnCharacterGoesToLeftBoundary;
 
+	UPROPERTY(BlueprintAssignable, Category = "Death")
+		FCharacterCrashed OnCharacterCrashed;
+
 protected:
 
 	virtual void BeginPlay() override;
+
+	virtual void PossessedBy(class AController* NewController) override;
+
+	void UpdateCharacter();
 
 	/** Called to choose the correct animation to play based on the character's movement state */
 	void UpdateAnimation();
@@ -66,18 +75,7 @@ protected:
 		
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void CollisionOverlapStart(class UPrimitiveComponent* OverlappedComponent, class  AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
-	void UpdateCharacter();
 
-	/*
-	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
-
-	void TouchStopped(const ETouchIndex::Type FingerIndex, const FVector Location);
-	*/
-
-	// APawn interface
-	//virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-	// End of APawn interface
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		float MovementAmount;

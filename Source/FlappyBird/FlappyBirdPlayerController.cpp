@@ -1,28 +1,77 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "FlappyBirdPlayerController.h"
+#include "FlappyBirdGameMode.h"
+#include "FlappyBirdCharacter.h"
+#include "FlappyBirdPlayerState.h"
+#include "UswgMain.h"
+#include "UswgPoint.h"
+#include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 
 AFlappyBirdPlayerController::AFlappyBirdPlayerController()
 {
 	bFirstInput = false;
-
 }
 
 void AFlappyBirdPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	/*
 	if (IsValid(MainWidgetBP))
 	{
-		theWidgetRef = CreateWidget<UUswgMain>(this, MainWidgetBP);
-		if (IsValid(theWidgetRef))
+		UUswgMain* theMainWidgetRef = CreateWidget<UUswgMain>(this, MainWidgetBP);
+		if (IsValid(theMainWidgetRef))
 		{
-			MainWidgetRef = theWidgetRef;
-			MainWidgetRef->AddToViewport(1);
+			MainWidgetRef = theMainWidgetRef;
+			MainWidgetRef->AddToViewport(2);
 			MainWidgetRef->SetVisibility(ESlateVisibility::Hidden);
+			MainWidgetRef->OnRestartRequested.AddDynamic(this, &AFlappyBirdPlayerController::RestartRequested);
+			MainWidgetRef->OnHighScoreRequested.AddDynamic(this, &AFlappyBirdPlayerController::HighScoreRequested);
+			MainWidgetRef->OnQuitRequested.AddDynamic(this, &AFlappyBirdPlayerController::QuitRequested);
+			if (IsValid(PointWidgetBP))
+			{
+				UUswgPoint* thePointWidgetRef = CreateWidget<UUswgPoint>(this, PointWidgetBP);
+				if (IsValid(thePointWidgetRef))
+				{
+					PointWidgetRef = thePointWidgetRef;
+					PointWidgetRef->AddToViewport(1);
+				}
+			}
 		}
 	}
-	*/
+}
+
+void AFlappyBirdPlayerController::SetCharacterRef(AFlappyBirdCharacter* theRef)
+{
+	if (IsValid(theRef))
+	{
+		CharRef = theRef;
+		CharRef->OnCharacterCrashed.AddDynamic(this, &AFlappyBirdPlayerController::CharacterCrashed);
+	}
+}
+
+void AFlappyBirdPlayerController::CharacterCrashed()
+{
+	CharRef->Destroy();
+	bShowMouseCursor = true;
+	MainWidgetRef->SetVisibility(ESlateVisibility::Visible);
+	bFirstInput = false;
+}
+
+void AFlappyBirdPlayerController::RestartRequested()
+{
+	MainWidgetRef->SetVisibility(ESlateVisibility::Hidden);
+	bShowMouseCursor = false;
+	OnPlayerRestartedGame.Broadcast();
+}
+
+void AFlappyBirdPlayerController::HighScoreRequested()
+{
+
+}
+
+void AFlappyBirdPlayerController::QuitRequested()
+{
+	UKismetSystemLibrary::QuitGame(GetWorld(), this, EQuitPreference::Quit, false);
 }
 
 void AFlappyBirdPlayerController::SetupInputComponent()

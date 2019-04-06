@@ -3,6 +3,7 @@
 #include "UswgParent.h"
 #include "FlappyBirdCharacter.h"
 #include "FlappyBirdPlayerController.h"
+#include "FlappyBirdPlayerState.h"
 
 UUswgParent::UUswgParent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -29,7 +30,11 @@ TSharedRef<SWidget> UUswgParent::RebuildWidget()
 		if (IsValid(cntr))
 		{
 			PlctRef = cntr;
-			//PlctRef->OnPlayerCharacterSpawned.AddDynamic(this, &UUswgParentMain::PlayerCharacterSpawned);
+			AFlappyBirdPlayerState* plst = Cast<AFlappyBirdPlayerState>(PlctRef->PlayerState);
+			if (IsValid(plst))
+			{
+				PlStateRef = plst;
+			}
 		}
 	}
 	UPanelWidget* uwg = Cast<UPanelWidget>(GetRootWidget());
@@ -39,14 +44,3 @@ TSharedRef<SWidget> UUswgParent::RebuildWidget()
 	}
 	return retWidget;
 }
-
-/*
-void UUswgParent::PlayerCharacterSpawned()
-{
-	AChrcWitch* Character = Cast<AChrcWitch>(PlCtRef->GetPawn());
-	if (IsValid(Character))
-	{
-		CharRef = Character;
-	}
-}
-*/

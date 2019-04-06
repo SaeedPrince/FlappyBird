@@ -179,6 +179,8 @@ void AFlappyBirdCharacter::UpdateCharacter()
 void AFlappyBirdCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/*
 	AFlappyBirdPlayerController* theCtrlr = Cast<AFlappyBirdPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (IsValid(theCtrlr))
 	{
@@ -187,8 +189,22 @@ void AFlappyBirdCharacter::BeginPlay()
 		CtrlRef->OnPlayerReleaseJump.AddDynamic(this, &AFlappyBirdCharacter::StopJump);
 		CtrlRef->OnPlayerStartedInput.AddDynamic(this, &AFlappyBirdCharacter::PlayerStartedInput);
 	}
+	*/
 	GetWorld()->GetTimerManager().SetTimer(TimerMoveRight, this, &AFlappyBirdCharacter::MoveToRight, MovementFrequency, true);
 	theCapsule->OnComponentBeginOverlap.AddDynamic(this, &AFlappyBirdCharacter::CollisionOverlapStart);
+}
+
+void AFlappyBirdCharacter::PossessedBy(AController* NewController)
+{
+	AFlappyBirdPlayerController* theCtrlr = Cast<AFlappyBirdPlayerController>(NewController);
+	if (IsValid(theCtrlr))
+	{
+		CtrlRef = theCtrlr;
+		CtrlRef->SetCharacterRef(this);
+		CtrlRef->OnPlayerPressJump.AddDynamic(this, &AFlappyBirdCharacter::StartJump);
+		CtrlRef->OnPlayerReleaseJump.AddDynamic(this, &AFlappyBirdCharacter::StopJump);
+		CtrlRef->OnPlayerStartedInput.AddDynamic(this, &AFlappyBirdCharacter::PlayerStartedInput);
+	}
 }
 
 void AFlappyBirdCharacter::PlayerStartedInput()
@@ -198,7 +214,6 @@ void AFlappyBirdCharacter::PlayerStartedInput()
 
 void AFlappyBirdCharacter::CollisionOverlapStart(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	PrintOnScreen("Overlap");
 	AActor* desiredActor;
 	AActor* hitActor = SweepResult.GetActor();
 	if (hitActor == this)
@@ -212,6 +227,6 @@ void AFlappyBirdCharacter::CollisionOverlapStart(UPrimitiveComponent* Overlapped
 	ABarrierPaperSpriteActor* barrier = Cast<ABarrierPaperSpriteActor>(desiredActor);
 	if (IsValid(barrier))
 	{
-		Destroy();
+		OnCharacterCrashed.Broadcast();
 	}
 }

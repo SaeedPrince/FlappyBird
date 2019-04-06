@@ -16,6 +16,7 @@
 
 class AFlappyBirdCharacter;
 class AFlappyBirdPlayerController;
+class AFlappyBirdPlayerState;
 
 UCLASS()
 class FLAPPYBIRD_API UUswgParent : public UUserWidget
@@ -42,6 +43,9 @@ protected:
 	// Properties
 	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
 		class AFlappyBirdCharacter* CharRef;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
+		class AFlappyBirdPlayerState* PlStateRef;
 		
 	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
 		class AFlappyBirdPlayerController* PlctRef;

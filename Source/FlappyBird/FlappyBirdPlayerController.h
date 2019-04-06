@@ -6,9 +6,14 @@
 #include "GameFramework/PlayerController.h"
 #include "FlappyBirdPlayerController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerRestartedGame);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerStartedInput);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerPressJump);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerReleaseJump);
+
+class AFlappyBirdCharacter;
+class UUswgMain;
+class UUswgPoint;
 
 UCLASS()
 class FLAPPYBIRD_API AFlappyBirdPlayerController : public APlayerController
@@ -20,6 +25,9 @@ public:
 	// Constructors
 	AFlappyBirdPlayerController();
 
+	UFUNCTION(BlueprintCallable, Category = "Setters")
+		void SetCharacterRef(class AFlappyBirdCharacter* theRef);
+
 	// Delegates
 	UPROPERTY(BlueprintAssignable, Category = "Input")
 		FPlayerStartedInput OnPlayerStartedInput;
@@ -30,14 +38,15 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Input")
 		FPlayerReleaseJump OnPlayerReleaseJump;
 
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+		FPlayerRestartedGame OnPlayerRestartedGame;
+
 protected:
 
 	// Called when the game starts or when spawned
-	//virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
 	//virtual void PlayerTick(float DeltaTime) override;
 	
-	virtual void BeginPlay() override;
-
 	virtual void SetupInputComponent() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
@@ -58,15 +67,40 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 		void UnJump();
 
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+		void RestartRequested();
+
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+		void HighScoreRequested();
+
+	UFUNCTION(BlueprintCallable, Category = "Menu")
+		void QuitRequested();
+		
+	UFUNCTION(BlueprintCallable, Category = "Character")
+		void CharacterCrashed();
+		
+	// Properties
 	UPROPERTY(BlueprintReadWrite, Category = "Flags")
 		bool bFirstInput;
 
 	/*
+	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
+		class AFlappyBirdGameMode* GameModeRef;
+	*/
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
+		class AFlappyBirdCharacter* CharRef;
+		
 	UPROPERTY(BlueprintReadWrite, Category = "Widgets")
 		class UUswgMain* MainWidgetRef;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
 		TSubclassOf<class UUswgMain> MainWidgetBP;
-	*/
+
+	UPROPERTY(BlueprintReadWrite, Category = "Widgets")
+		class UUswgPoint* PointWidgetRef;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
+		TSubclassOf<class UUswgPoint> PointWidgetBP;
 
 };
