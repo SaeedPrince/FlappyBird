@@ -98,7 +98,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		class UCapsuleComponent* theCapsule;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 		class UCharacterMovementComponent* ChMovement;
 
 	// The animation to play while running around
