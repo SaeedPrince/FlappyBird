@@ -25,19 +25,6 @@ public:
 	virtual void NativePreConstruct() override;
 	virtual TSharedRef<SWidget> RebuildWidget();
 
-	/*
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Events")
-		void ShowHighScore(TArray<FText> txtArray, TArray<int32> intArray);
-	*/
-
-	/*
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Events")
-		void ShowHighScore(TArray<FText> txtArray, TArray<int32> intArray);
-
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Events")
-		void ShowOff(TArray<FText>& txtArray, TArray<int32>& intArray);
-	*/
-
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void ShowHighScore();
 

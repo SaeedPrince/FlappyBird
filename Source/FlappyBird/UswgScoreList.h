@@ -6,9 +6,6 @@
 #include "UswgParent.h"
 #include "UswgScoreList.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class FLAPPYBIRD_API UUswgScoreList : public UUswgParent
 {
@@ -23,21 +20,10 @@ public:
 	virtual void NativePreConstruct() override;
 	virtual TSharedRef<SWidget> RebuildWidget();
 
-	/*
-	UFUNCTION(BlueprintCallable, Category = "Events")
-		void SetScoreList(TArray<FText> txtArray, TArray<int32> intArray);
-	*/
-
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void SetScoreList();
 
 protected:
-
-	// Functions
-	/*
-	UFUNCTION(BlueprintCallable, Category = "Events")
-	void PlayerPointChanged(int32 inPoint);
-	*/
 
 	// Properties
 	UPROPERTY(BlueprintReadOnly, Category = "Components")
@@ -46,5 +32,3 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Components")
 		TArray<class UTextBlock*> txtScores;
 };
-
-

@@ -33,13 +33,6 @@ public:
 	virtual TSharedRef<SWidget> RebuildWidget();
 
 protected:
-
-	// Functions
-	/*
-	UFUNCTION(BlueprintCallable, Category = "Events")
-		void PlayerCharacterSpawned();
-	*/
-
 	// Properties
 	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
 		class AFlappyBirdCharacter* CharRef;

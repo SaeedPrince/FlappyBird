@@ -10,11 +10,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerRestartedGame);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerStartedInput);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerPressJump);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerReleaseJump);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSaveGameCreated, class USaveScore*, inSaveObject);
 
 class AFlappyBirdCharacter;
 class AFlappyBirdPlayerState;
-//class USaveScore;
 class USaveManager;
 class UUswgHighScore;
 class UUswgMain;
@@ -51,16 +49,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 		FPlayerRestartedGame OnPlayerRestartedGame;
 
-	/*
-	UPROPERTY(BlueprintAssignable, Category = "Events")
-		FSaveGameCreated OnSaveGameCreated;
-	*/
-
 protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	//virtual void PlayerTick(float DeltaTime) override;
 	
 	virtual void SetupInputComponent() override;
 
@@ -113,22 +105,12 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Flags")
 		bool bFirstInput;
 
-	/*
-	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
-		class AFlappyBirdGameMode* GameModeRef;
-	*/
-
 	UPROPERTY(BlueprintReadOnly, Category = "Game Objects|Other")
 		class AFlappyBirdCharacter* CharRef;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Game Objects|Other")
 		class AFlappyBirdPlayerState* PlStateRef;
 	
-	/*
-	UPROPERTY(BlueprintReadWrite, Category = "Game Objects|Other")
-		class USaveScore* SaveScoreRef;
-	*/
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		class UAudioComponent* JumpSound;
 

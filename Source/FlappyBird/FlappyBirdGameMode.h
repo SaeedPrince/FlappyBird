@@ -39,14 +39,6 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Events")
 		void PrintOnScreen(const FString& inString, bool bScreen = true, bool bLog = true, const FLinearColor& inColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f), float inDuration = 8.0f);
 
-	/*
-	UFUNCTION(BlueprintCallable, Category = "Events")
-		void CharacterGoesToLeftBoundary(float inLeftBoundary);
-
-	UFUNCTION(BlueprintCallable, Category = "Events")
-		void CharacterCrashed();
-	*/
-
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void PlayerStartedInput();
 		
@@ -84,11 +76,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Barrier")
 		float BarrierFirstXOffset;
 
-	/*
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Barrier")
-		FVector BarrierFirstSpawnLocation;
-	*/
-
 	UPROPERTY(BlueprintReadWrite, Category = "Barrier")
 		FVector BarrierSpawnLocation;
 
@@ -100,11 +87,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
 		class AFlappyBirdPlayerController* CtrlRef;
-
-	/*
-	UPROPERTY(BlueprintReadOnly, Category = "Barrier")
-		TArray<class ABarrierPaperSpriteActor*> Barriers;
-	*/
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Custom Classes")
 		TSubclassOf<class ABarrierPaperSpriteActor> BarrierBP;

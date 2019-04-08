@@ -18,7 +18,6 @@ AFlappyBirdGameMode::AFlappyBirdGameMode()
 	BarrierXOffset = 1800.0f;
 	BarrierFirstXOffset = BarrierXOffset * 2.0f;
 	CharacterSpawnLocation = FVector(-312.0f, -13.0f, 910.0f);
-	//BarrierFirstSpawnLocation = FVector(1500.0f, -13.0f, 910.0f);
 }
 
 void AFlappyBirdGameMode::BeginPlay()

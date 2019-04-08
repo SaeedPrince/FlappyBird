@@ -50,29 +50,14 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void PlayerStartedInput();
 
-	/*
-	UFUNCTION(BlueprintCallable, Category = "Events")
-		void SaveGameCreated(class USaveScore* inSaveScore);
-	*/
-
 	UPROPERTY(BlueprintReadWrite, Category = "Variables")
 		int32 PlayerPoint;
-
-	/*
-	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
-		class AFlappyBirdGameMode* GameModeRef;
-	*/
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
 		class AFlappyBirdPlayerController* CtrlRef;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
 		class AFlappyBirdCharacter* CharRef;
-
-	/*
-	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
-		class USaveScore* SaveScoreRef;
-	*/
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
 		class USaveManager* SaveRef;

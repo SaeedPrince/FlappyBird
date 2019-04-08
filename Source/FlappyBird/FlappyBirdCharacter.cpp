@@ -133,19 +133,6 @@ void AFlappyBirdCharacter::Tick(float DeltaSeconds)
 //////////////////////////////////////////////////////////////////////////
 // Input
 
-/*
-void AFlappyBirdCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
-{
-	// Note: the 'Jump' action and the 'MoveRight' axis are bound to actual keys/buttons/sticks in DefaultInput.ini (editable from Project Settings..Input)
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AFlappyBirdCharacter::StartJump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AFlappyBirdCharacter::StopJump);
-	//PlayerInputComponent->BindAxis("MoveRight", this, &AFlappyBirdCharacter::MoveRight);
-
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &AFlappyBirdCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &AFlappyBirdCharacter::TouchStopped);
-}
-*/
-
 void AFlappyBirdCharacter::StartJump()
 {
 	// Jump on any touch
@@ -165,11 +152,9 @@ void AFlappyBirdCharacter::MoveToRight()
 	
 	if (CharLoc.X > BoundaryRightX)
 	{
-		//SetActorLocation(FVector(BoundaryLeftX, CharLoc.Y, CharLoc.Z));
 		if (IsValid(GameModeRef))
 		{
 			SetActorLocation(GameModeRef->GetBirdSpawnLocation());
-			//OnCharacterGoesToLeftBoundary.Broadcast(BoundaryLeftX);
 		}
 	}
 }

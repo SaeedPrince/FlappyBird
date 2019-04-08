@@ -24,34 +24,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Setters")
 		void InsertRecord(FText inPlayerName, int32 inPoint);
 
-	/*
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
-		bool DoesSaveGameExist();
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
-		bool LoadHighScore(TArray<FText>& txtArray, TArray<int32>& intArray);
-	*/
-		
-	/*
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
-		class USaveScore* LoadHighScore();
-	*/
-
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
 		TArray<FText> GetNameArray();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
 		TArray<int32> GetPointArray();
-
-	/*
-	UFUNCTION(BlueprintCallable, Category = "Events")
-		void SaveHighScore(FText inText, int32 inNumber);
-	*/
-
-	/*
-	UFUNCTION(BlueprintCallable, Category = "Events")
-		class USaveScore* SaveHighScore(FText inText, int32 inNumber);
-	*/
 
 protected:
 

@@ -8,7 +8,6 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCharacterCrashed);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCharacterPassed);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterGoesToLeftBoundary, float, inLeftBoundary);
 
 class AController;
 class AFlappyBirdPlayerController;
@@ -42,11 +41,6 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	// Delegates
-	/*
-	UPROPERTY(BlueprintAssignable, Category = "Map")
-		FCharacterGoesToLeftBoundary OnCharacterGoesToLeftBoundary;
-	*/
-
 	UPROPERTY(BlueprintAssignable, Category = "Death")
 		FCharacterCrashed OnCharacterCrashed;
 
@@ -98,11 +92,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		float PlayingGravity;
-
-	/*
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boundary")
-		float BoundaryLeftX;
-	*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boundary")
 		float BoundaryRightX;

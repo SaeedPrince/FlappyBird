@@ -21,17 +21,6 @@ void UUswgHighScore::NativePreConstruct()
 	Super::NativePreConstruct();
 }
 
-/*
-void UUswgHighScore::ShowHighScore_Implementation(TArray<FText> txtArray, TArray<int32> intArray)
-{
-	if (IsValid(uScoreList))
-	{
-		uScoreList->SetScoreList(txtArray, intArray);
-		SetVisibility(ESlateVisibility::Visible);
-	}
-}
-*/
-
 void UUswgHighScore::ShowHighScore()
 {
 	if (IsValid(uScoreList))

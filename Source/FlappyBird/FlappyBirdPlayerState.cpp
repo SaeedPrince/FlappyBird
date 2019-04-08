@@ -4,7 +4,6 @@
 #include "FlappyBirdCharacter.h"
 #include "FlappyBirdGameMode.h"
 #include "FlappyBirdPlayerController.h"
-//#include "SaveScore.h"
 #include "SaveManager.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
@@ -25,7 +24,6 @@ void AFlappyBirdPlayerState::SetReferences(AFlappyBirdPlayerController* theRef, 
 	{
 		CtrlRef = theRef;
 		CtrlRef->OnPlayerStartedInput.AddDynamic(this, &AFlappyBirdPlayerState::PlayerStartedInput);
-		//CtrlRef->OnSaveGameCreated.AddDynamic(this, &AFlappyBirdPlayerState::SaveGameCreated);
 		if (IsValid(inSaveRef))
 		{
 			SaveRef = inSaveRef;
@@ -51,27 +49,6 @@ void AFlappyBirdPlayerState::PlayerStartedInput()
 
 void AFlappyBirdPlayerState::CharacterCrashed()
 {
-	/*
-	if (IsValid(SaveScoreRef))
-	{
-		if (SaveScoreRef->DoesSaveGameExist())
-		{
-			if (SaveScoreRef->CanAchieveHighScore(PlayerPoint))
-			{
-				OnHighScoreAchived.Broadcast(PlayerPoint);
-			}
-			else
-			{
-				OnHighScoreNotAchived.Broadcast();
-			}
-		}
-		else
-		{
-			OnHighScoreAchived.Broadcast(PlayerPoint);
-		}
-	}
-	*/
-
 	if (IsValid(SaveRef))
 	{
 		if (SaveRef->CanAchieveHighScore(PlayerPoint))
@@ -90,13 +67,3 @@ void AFlappyBirdPlayerState::CharacterPassed()
 	PlayerPoint++;
 	OnPlayerPointChanged.Broadcast(PlayerPoint);
 }
-
-/*
-void AFlappyBirdPlayerState::SaveGameCreated(USaveScore* inSaveScore)
-{
-	if (IsValid(inSaveScore))
-	{
-		SaveScoreRef = inSaveScore;
-	}
-}
-*/
