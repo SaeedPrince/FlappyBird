@@ -1,15 +1,19 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "FlappyBirdCharacter.h"
+#include "BarrierPaperSpriteActor.h"
+#include "BoundActor.h"
+#include "FlappyBirdGameMode.h"
 #include "PaperFlipbookComponent.h"
+#include "FlappyBirdPaperSpriteComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Runtime/Engine/Classes/Components/AudioComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
-#include "BarrierPaperSpriteActor.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "FlappyBirdPlayerController.h"
 
@@ -25,10 +29,14 @@ AFlappyBirdCharacter::AFlappyBirdCharacter()
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
+	CurrentMovement = 0.0f;
 	MovementAmount = 1.0f;
 	MovementFrequency = 0.01f;
 
-	BoundaryLeftX = -3000.0f;
+	StartingGravity = 0.0f;
+	PlayingGravity = 2.0f;
+
+	//BoundaryLeftX = -3000.0f;
 	BoundaryRightX = 3000.0f;
 
 	// Set the size of our collision capsule.
@@ -62,7 +70,6 @@ AFlappyBirdCharacter::AFlappyBirdCharacter()
 		ChMovement->bOrientRotationToMovement = false;
 
 		// Configure character movement
-		ChMovement->GravityScale = 0.0f;
 		ChMovement->AirControl = 0.80f;
 		ChMovement->JumpZVelocity = 1000.f;
 		ChMovement->GroundFriction = 3.0f;
@@ -88,6 +95,11 @@ AFlappyBirdCharacter::AFlappyBirdCharacter()
 	// Enable replication on the Sprite component so animations show up when networked
 	GetSprite()->SetIsReplicated(true);
 	bReplicates = true;
+
+	GameSound = CreateDefaultSubobject<UAudioComponent>(TEXT("Game Sound"));
+	GameSound->SetupAttachment(RootComponent);
+	GameSound->SetAutoActivate(true);
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -144,12 +156,17 @@ void AFlappyBirdCharacter::StopJump()
 
 void AFlappyBirdCharacter::MoveToRight()
 {
-	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), MovementAmount);
+	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), CurrentMovement);
 	FVector CharLoc = GetActorLocation();
+	
 	if (CharLoc.X > BoundaryRightX)
 	{
-		SetActorLocation(FVector(BoundaryLeftX, CharLoc.Y, CharLoc.Z));
-		OnCharacterGoesToLeftBoundary.Broadcast(BoundaryLeftX);
+		//SetActorLocation(FVector(BoundaryLeftX, CharLoc.Y, CharLoc.Z));
+		if (IsValid(GameModeRef))
+		{
+			SetActorLocation(GameModeRef->GetBirdSpawnLocation());
+			//OnCharacterGoesToLeftBoundary.Broadcast(BoundaryLeftX);
+		}
 	}
 }
 
@@ -179,19 +196,14 @@ void AFlappyBirdCharacter::UpdateCharacter()
 void AFlappyBirdCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	/*
-	AFlappyBirdPlayerController* theCtrlr = Cast<AFlappyBirdPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (IsValid(theCtrlr))
+	AFlappyBirdGameMode* gmme = Cast<AFlappyBirdGameMode>(GetWorld()->GetAuthGameMode());
+	if (IsValid(gmme))
 	{
-		CtrlRef = theCtrlr;
-		CtrlRef->OnPlayerPressJump.AddDynamic(this, &AFlappyBirdCharacter::StartJump);
-		CtrlRef->OnPlayerReleaseJump.AddDynamic(this, &AFlappyBirdCharacter::StopJump);
-		CtrlRef->OnPlayerStartedInput.AddDynamic(this, &AFlappyBirdCharacter::PlayerStartedInput);
+		GameModeRef = gmme;
 	}
-	*/
 	GetWorld()->GetTimerManager().SetTimer(TimerMoveRight, this, &AFlappyBirdCharacter::MoveToRight, MovementFrequency, true);
 	theCapsule->OnComponentBeginOverlap.AddDynamic(this, &AFlappyBirdCharacter::CollisionOverlapStart);
+	ChMovement->GravityScale = StartingGravity;
 }
 
 void AFlappyBirdCharacter::PossessedBy(AController* NewController)
@@ -209,24 +221,45 @@ void AFlappyBirdCharacter::PossessedBy(AController* NewController)
 
 void AFlappyBirdCharacter::PlayerStartedInput()
 {
-	ChMovement->GravityScale = 2.0f;
+	CurrentMovement = MovementAmount;
+	ChMovement->GravityScale = PlayingGravity;
 }
 
 void AFlappyBirdCharacter::CollisionOverlapStart(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AActor* desiredActor;
 	AActor* hitActor = SweepResult.GetActor();
+	UPrimitiveComponent* desiredComp;
+	UPrimitiveComponent* hitComp = SweepResult.GetComponent();	
 	if (hitActor == this)
 	{
 		desiredActor = OtherActor;
+		desiredComp = OtherComp;
 	}
 	else
 	{
 		desiredActor = hitActor;
+		desiredComp = hitComp;
 	}
 	ABarrierPaperSpriteActor* barrier = Cast<ABarrierPaperSpriteActor>(desiredActor);
 	if (IsValid(barrier))
 	{
-		OnCharacterCrashed.Broadcast();
+		UFlappyBirdPaperSpriteComponent* barrierComp = Cast<UFlappyBirdPaperSpriteComponent>(desiredComp);
+		if (IsValid(barrierComp))
+		{
+			OnCharacterCrashed.Broadcast();
+		}
+		else
+		{
+			OnCharacterPassed.Broadcast();
+		}
+	}
+	else
+	{
+		ABoundActor* bound = Cast<ABoundActor>(desiredActor);
+		if (IsValid(bound))
+		{
+			OnCharacterCrashed.Broadcast();
+		}
 	}
 }

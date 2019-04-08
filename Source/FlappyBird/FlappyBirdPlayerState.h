@@ -6,10 +6,14 @@
 #include "GameFramework/PlayerState.h"
 #include "FlappyBirdPlayerState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHighScoreNotAchived);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerPointChanged, int32, inPoint);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighScoreAchived, int32, inPoint);
 
+class AFlappyBirdCharacter;
 class AFlappyBirdGameMode;
 class AFlappyBirdPlayerController;
+class USaveManager;
 
 UCLASS()
 class FLAPPYBIRD_API AFlappyBirdPlayerState : public APlayerState
@@ -20,39 +24,57 @@ public:
 
 	AFlappyBirdPlayerState();
 
+	UFUNCTION(BlueprintCallable, Category = "Setters")
+		void SetReferences(class AFlappyBirdPlayerController* theRef, class USaveManager* inSaveRef);
+
 	// Delegates
 	UPROPERTY(BlueprintAssignable, Category = "Point")
 		FPlayerPointChanged OnPlayerPointChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Point")
+		FHighScoreAchived OnHighScoreAchived;
+
+	UPROPERTY(BlueprintAssignable, Category = "Point")
+		FHighScoreNotAchived OnHighScoreNotAchived;
 
 protected:
 
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Events")
-		void CountPoint();
-
+		void CharacterCrashed();
+		
 	UFUNCTION(BlueprintCallable, Category = "Events")
-		void FirstDelay();
+		void CharacterPassed();
 
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void PlayerStartedInput();
 
+	/*
+	UFUNCTION(BlueprintCallable, Category = "Events")
+		void SaveGameCreated(class USaveScore* inSaveScore);
+	*/
+
 	UPROPERTY(BlueprintReadWrite, Category = "Variables")
 		int32 PlayerPoint;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Coordination")
-		float StartDelay;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Timers")
-		FTimerHandle TimerDelay;
-		
-	UPROPERTY(BlueprintReadWrite, Category = "Timers")
-		FTimerHandle TimerPoint;
-
+	/*
 	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
 		class AFlappyBirdGameMode* GameModeRef;
+	*/
 
 	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
 		class AFlappyBirdPlayerController* CtrlRef;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
+		class AFlappyBirdCharacter* CharRef;
+
+	/*
+	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
+		class USaveScore* SaveScoreRef;
+	*/
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Objects")
+		class USaveManager* SaveRef;
 
 };

@@ -1,53 +1,102 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "FlappyBirdPlayerState.h"
+#include "FlappyBirdCharacter.h"
 #include "FlappyBirdGameMode.h"
 #include "FlappyBirdPlayerController.h"
+//#include "SaveScore.h"
+#include "SaveManager.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 
 AFlappyBirdPlayerState::AFlappyBirdPlayerState()
 {
 	PlayerPoint = 0;
-	StartDelay = 0.0f;
 }
 
 void AFlappyBirdPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
-	AFlappyBirdPlayerController* cntr = Cast<AFlappyBirdPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (IsValid(cntr))
+}
+
+void AFlappyBirdPlayerState::SetReferences(AFlappyBirdPlayerController* theRef, USaveManager* inSaveRef)
+{
+	if (IsValid(theRef))
 	{
-		CtrlRef = cntr;
+		CtrlRef = theRef;
 		CtrlRef->OnPlayerStartedInput.AddDynamic(this, &AFlappyBirdPlayerState::PlayerStartedInput);
-	}
-	AFlappyBirdGameMode* gmme = Cast<AFlappyBirdGameMode>(GetWorld()->GetAuthGameMode());
-	if (IsValid(gmme))
-	{
-		GameModeRef = gmme;
+		//CtrlRef->OnSaveGameCreated.AddDynamic(this, &AFlappyBirdPlayerState::SaveGameCreated);
+		if (IsValid(inSaveRef))
+		{
+			SaveRef = inSaveRef;
+		}
 	}
 }
 
 void AFlappyBirdPlayerState::PlayerStartedInput()
 {
-	GetWorld()->GetTimerManager().SetTimer(TimerDelay, this, &AFlappyBirdPlayerState::FirstDelay, StartDelay);
 	PlayerPoint = 0;
 	OnPlayerPointChanged.Broadcast(PlayerPoint);
-}
-
-void AFlappyBirdPlayerState::FirstDelay()
-{
-	if (IsValid(GameModeRef))
+	if (IsValid(CtrlRef))
 	{
-		GetWorld()->GetTimerManager().SetTimer(TimerPoint, this, &AFlappyBirdPlayerState::CountPoint, GameModeRef->GetBarrierFrequency(), true);
+		AFlappyBirdCharacter* chrc = Cast<AFlappyBirdCharacter>(CtrlRef->GetPawn());
+		if (IsValid(chrc))
+		{
+			CharRef = chrc;
+			CharRef->OnCharacterPassed.AddDynamic(this, &AFlappyBirdPlayerState::CharacterPassed);
+			CharRef->OnCharacterCrashed.AddDynamic(this, &AFlappyBirdPlayerState::CharacterCrashed);
+		}
 	}
 }
 
-void AFlappyBirdPlayerState::CountPoint()
+void AFlappyBirdPlayerState::CharacterCrashed()
+{
+	/*
+	if (IsValid(SaveScoreRef))
+	{
+		if (SaveScoreRef->DoesSaveGameExist())
+		{
+			if (SaveScoreRef->CanAchieveHighScore(PlayerPoint))
+			{
+				OnHighScoreAchived.Broadcast(PlayerPoint);
+			}
+			else
+			{
+				OnHighScoreNotAchived.Broadcast();
+			}
+		}
+		else
+		{
+			OnHighScoreAchived.Broadcast(PlayerPoint);
+		}
+	}
+	*/
+
+	if (IsValid(SaveRef))
+	{
+		if (SaveRef->CanAchieveHighScore(PlayerPoint))
+		{
+			OnHighScoreAchived.Broadcast(PlayerPoint);
+		}
+		else
+		{
+			OnHighScoreNotAchived.Broadcast();
+		}
+	}
+}
+
+void AFlappyBirdPlayerState::CharacterPassed()
 {
 	PlayerPoint++;
 	OnPlayerPointChanged.Broadcast(PlayerPoint);
 }
 
-
-
+/*
+void AFlappyBirdPlayerState::SaveGameCreated(USaveScore* inSaveScore)
+{
+	if (IsValid(inSaveScore))
+	{
+		SaveScoreRef = inSaveScore;
+	}
+}
+*/

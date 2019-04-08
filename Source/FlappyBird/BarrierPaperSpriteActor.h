@@ -21,6 +21,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	/*
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void DestroyMe();
 
@@ -35,5 +36,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Components")
 		class UFlappyBirdPaperSpriteComponent* DownSprite;
+	*/
 
 };

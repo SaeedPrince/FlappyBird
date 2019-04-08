@@ -10,14 +10,15 @@
 AFlappyBirdGameMode::AFlappyBirdGameMode()
 {
 	// Set default pawn class to our character
-	bDebug = false;
-	BarrierFrequency = 3.0f;
-	BarrierXOffset = 1800.0f;
+	BarrierCount = 0;
+	BarrierMaxCount = 20;
 	BarrierZMin = 800;
 	BarrierZMax = 1000;
+	BarrierFrequency = 0.5f;
+	BarrierXOffset = 1800.0f;
+	BarrierFirstXOffset = BarrierXOffset * 2.0f;
 	CharacterSpawnLocation = FVector(-312.0f, -13.0f, 910.0f);
-	BarrierFirstSpawnLocation = FVector(1500.0f, -13.0f, 910.0f);
-	BarrierSpawnLocation = BarrierFirstSpawnLocation;
+	//BarrierFirstSpawnLocation = FVector(1500.0f, -13.0f, 910.0f);
 }
 
 void AFlappyBirdGameMode::BeginPlay()
@@ -33,9 +34,9 @@ void AFlappyBirdGameMode::BeginPlay()
 	}
 }
 
-float AFlappyBirdGameMode::GetBarrierFrequency()
+FVector AFlappyBirdGameMode::GetBirdSpawnLocation()
 {
-	return BarrierFrequency;
+	return CharacterSpawnLocation;
 }
 
 void AFlappyBirdGameMode::StartGame()
@@ -46,43 +47,45 @@ void AFlappyBirdGameMode::StartGame()
 		if (IsValid(SpawnedCharacter))
 		{
 			CharRef = SpawnedCharacter;
-			CharRef->OnCharacterGoesToLeftBoundary.AddDynamic(this, &AFlappyBirdGameMode::CharacterGoesToLeftBoundary);
-			CharRef->OnCharacterCrashed.AddDynamic(this, &AFlappyBirdGameMode::CharacterCrashed);
 			CtrlRef->Possess(CharRef);
 		}
 	}
 }
 
-void AFlappyBirdGameMode::CharacterCrashed()
-{
-	PrintOnScreen("CharacterCrashed");
-	GetWorld()->GetTimerManager().ClearTimer(TimerBarrier);
-	TimerBarrier.Invalidate();
-	BarrierSpawnLocation = BarrierFirstSpawnLocation;
-}
-
-void AFlappyBirdGameMode::CharacterGoesToLeftBoundary(float inLeftBoundary)
-{
-	BarrierSpawnLocation = FVector(inLeftBoundary + BarrierXOffset, BarrierSpawnLocation.Y, BarrierSpawnLocation.Z);
-}
-
 void AFlappyBirdGameMode::PlayerStartedInput()
 {
-	GetWorld()->GetTimerManager().SetTimer(TimerBarrier, this, &AFlappyBirdGameMode::BarrierManager, BarrierFrequency, true);
+	if (IsValid(CharRef))
+	{
+		FVector theLoc = CharRef->GetActorLocation();
+		BarrierSpawnLocation = FVector(theLoc.X + BarrierFirstXOffset, theLoc.Y, theLoc.Z);
+		if (BarrierCount < BarrierMaxCount)
+		{
+			GetWorld()->GetTimerManager().SetTimer(TimerBarrier, this, &AFlappyBirdGameMode::BarrierManager, BarrierFrequency, true);
+		}
+	}
 }
 
 void AFlappyBirdGameMode::BarrierManager()
 {
-	if (IsValid(BarrierBP) && IsValid(CharRef))
+	if (BarrierCount < BarrierMaxCount)
 	{
-		int32 zBar = UKismetMathLibrary::RandomIntegerInRange(BarrierZMin, BarrierZMax);
-		BarrierZLocation = UKismetMathLibrary::Conv_IntToFloat(zBar);
-		BarrierSpawnLocation.Z = BarrierZLocation;
-		ABarrierPaperSpriteActor* SpawnedBarrier = Cast<ABarrierPaperSpriteActor>(SpawnFlabbyBirdActor(BarrierBP, BarrierSpawnLocation));
-		if (IsValid(SpawnedBarrier))
+		if (IsValid(BarrierBP))
 		{
-			BarrierSpawnLocation = FVector(BarrierSpawnLocation.X + BarrierXOffset, BarrierSpawnLocation.Y, BarrierSpawnLocation.Z);
+			int32 zBar = UKismetMathLibrary::RandomIntegerInRange(BarrierZMin, BarrierZMax);
+			BarrierZLocation = UKismetMathLibrary::Conv_IntToFloat(zBar);
+			BarrierSpawnLocation.Z = BarrierZLocation;
+			ABarrierPaperSpriteActor* SpawnedBarrier = Cast<ABarrierPaperSpriteActor>(SpawnFlabbyBirdActor(BarrierBP, BarrierSpawnLocation));
+			if (IsValid(SpawnedBarrier))
+			{
+				BarrierSpawnLocation = FVector(BarrierSpawnLocation.X + BarrierXOffset, BarrierSpawnLocation.Y, BarrierSpawnLocation.Z);
+				BarrierCount++;
+			}
 		}
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimerBarrier);
+		TimerBarrier.Invalidate();
 	}
 }
 

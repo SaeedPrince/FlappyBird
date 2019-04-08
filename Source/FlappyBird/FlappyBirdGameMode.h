@@ -26,7 +26,7 @@ public:
 	AFlappyBirdGameMode();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
-		float GetBarrierFrequency();
+		FVector GetBirdSpawnLocation();
 
 protected:
 
@@ -39,12 +39,14 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Events")
 		void PrintOnScreen(const FString& inString, bool bScreen = true, bool bLog = true, const FLinearColor& inColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f), float inDuration = 8.0f);
 
+	/*
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void CharacterGoesToLeftBoundary(float inLeftBoundary);
 
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void CharacterCrashed();
-		
+	*/
+
 	UFUNCTION(BlueprintCallable, Category = "Events")
 		void PlayerStartedInput();
 		
@@ -55,8 +57,11 @@ protected:
 		void StartGame();
 		
 	// Properties
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug Mode")
-		bool bDebug;
+	UPROPERTY(BlueprintReadWrite, Category = "Barrier")
+		int32 BarrierCount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Barrier")
+		int32 BarrierMaxCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Barrier")
 		int32 BarrierZMin;
@@ -76,10 +81,15 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Timers")
 		FTimerHandle TimerBarrier;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Barrier")
+		float BarrierFirstXOffset;
+
+	/*
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Barrier")
 		FVector BarrierFirstSpawnLocation;
+	*/
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Barrier")
+	UPROPERTY(BlueprintReadWrite, Category = "Barrier")
 		FVector BarrierSpawnLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")

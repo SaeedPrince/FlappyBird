@@ -7,10 +7,12 @@
 #include "FlappyBirdCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCharacterCrashed);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterGoesToLeftBoundary, float, inLeftBoundary);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FCharacterPassed);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCharacterGoesToLeftBoundary, float, inLeftBoundary);
 
 class AController;
 class AFlappyBirdPlayerController;
+class AFlappyBirdGameMode;
 class UCharacterMovementComponent;
 class UPaperFlipbook;
 class UTextRenderComponent;
@@ -40,11 +42,16 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	// Delegates
+	/*
 	UPROPERTY(BlueprintAssignable, Category = "Map")
 		FCharacterGoesToLeftBoundary OnCharacterGoesToLeftBoundary;
+	*/
 
 	UPROPERTY(BlueprintAssignable, Category = "Death")
 		FCharacterCrashed OnCharacterCrashed;
+
+	UPROPERTY(BlueprintAssignable, Category = "Pass")
+		FCharacterPassed OnCharacterPassed;
 
 protected:
 
@@ -77,14 +84,25 @@ protected:
 		void CollisionOverlapStart(class UPrimitiveComponent* OverlappedComponent, class  AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+		float CurrentMovement;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		float MovementAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		float MovementFrequency;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+		float StartingGravity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+		float PlayingGravity;
+
+	/*
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boundary")
 		float BoundaryLeftX;
+	*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Boundary")
 		float BoundaryRightX;
@@ -94,6 +112,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
 		class AFlappyBirdPlayerController* CtrlRef;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
+		class AFlappyBirdGameMode* GameModeRef;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		class UAudioComponent* GameSound;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		class UCapsuleComponent* theCapsule;

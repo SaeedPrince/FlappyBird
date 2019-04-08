@@ -10,10 +10,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerRestartedGame);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerStartedInput);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerPressJump);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPlayerReleaseJump);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSaveGameCreated, class USaveScore*, inSaveObject);
 
 class AFlappyBirdCharacter;
+class AFlappyBirdPlayerState;
+//class USaveScore;
+class USaveManager;
+class UUswgHighScore;
 class UUswgMain;
 class UUswgPoint;
+class UUswgRegister;
 
 UCLASS()
 class FLAPPYBIRD_API AFlappyBirdPlayerController : public APlayerController
@@ -25,6 +31,10 @@ public:
 	// Constructors
 	AFlappyBirdPlayerController();
 
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Getters")
+		class USaveManager* GetSaveManager();
+	
 	UFUNCTION(BlueprintCallable, Category = "Setters")
 		void SetCharacterRef(class AFlappyBirdCharacter* theRef);
 
@@ -41,6 +51,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 		FPlayerRestartedGame OnPlayerRestartedGame;
 
+	/*
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+		FSaveGameCreated OnSaveGameCreated;
+	*/
+
 protected:
 
 	// Called when the game starts or when spawned
@@ -48,6 +63,9 @@ protected:
 	//virtual void PlayerTick(float DeltaTime) override;
 	
 	virtual void SetupInputComponent() override;
+
+	UFUNCTION(BlueprintCallable, Category = "Widgets")
+		void CreateAllWidgets();
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 		void FingerTouchPressed(const ETouchIndex::Type FingerIndex, const FVector Location);
@@ -76,6 +94,18 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 		void QuitRequested();
 		
+	UFUNCTION(BlueprintCallable, Category = "Player State")
+		void HighScoreAchived(int32 inPoint);
+
+	UFUNCTION(BlueprintCallable, Category = "Player State")
+		void HighScoreNotAchived();
+
+	UFUNCTION(BlueprintCallable, Category = "Register")
+		void PlayerNameRegister(FText inPlayerName, int32 inPoint);
+
+	UFUNCTION(BlueprintCallable, Category = "High Score")
+		void HighScoreReturnToMain();
+
 	UFUNCTION(BlueprintCallable, Category = "Character")
 		void CharacterCrashed();
 		
@@ -88,19 +118,51 @@ protected:
 		class AFlappyBirdGameMode* GameModeRef;
 	*/
 
-	UPROPERTY(BlueprintReadOnly, Category = "Game Objects")
+	UPROPERTY(BlueprintReadOnly, Category = "Game Objects|Other")
 		class AFlappyBirdCharacter* CharRef;
-		
-	UPROPERTY(BlueprintReadWrite, Category = "Widgets")
+
+	UPROPERTY(BlueprintReadOnly, Category = "Game Objects|Other")
+		class AFlappyBirdPlayerState* PlStateRef;
+	
+	/*
+	UPROPERTY(BlueprintReadWrite, Category = "Game Objects|Other")
+		class USaveScore* SaveScoreRef;
+	*/
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		class UAudioComponent* JumpSound;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		class UAudioComponent* DeathSound;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Objects|Other")
+		class USaveManager* SaveManagerRef;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Objects|Widgets")
+		class UUswgHighScore* HighScoreWidgetRef;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Game Objects|Widgets")
 		class UUswgMain* MainWidgetRef;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
-		TSubclassOf<class UUswgMain> MainWidgetBP;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Widgets")
+	UPROPERTY(BlueprintReadWrite, Category = "Game Objects|Widgets")
 		class UUswgPoint* PointWidgetRef;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
+	UPROPERTY(BlueprintReadWrite, Category = "Game Objects|Widgets")
+		class UUswgRegister* RegisterWidgetRef;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Classes|Other")
+		TSubclassOf<class USaveScore> SaveScoreBP;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Classes|Widgets")
+		TSubclassOf<class UUswgHighScore> HighScoreWidgetBP;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Classes|Widgets")
+		TSubclassOf<class UUswgMain> MainWidgetBP;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Classes|Widgets")
 		TSubclassOf<class UUswgPoint> PointWidgetBP;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Classes|Widgets")
+		TSubclassOf<class UUswgRegister> RegisterWidgetBP;
 
 };
