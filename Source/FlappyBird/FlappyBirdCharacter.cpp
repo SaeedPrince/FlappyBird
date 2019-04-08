@@ -100,6 +100,10 @@ AFlappyBirdCharacter::AFlappyBirdCharacter()
 	GameSound->SetupAttachment(RootComponent);
 	GameSound->SetAutoActivate(true);
 
+	ScoreSound = CreateDefaultSubobject<UAudioComponent>(TEXT("Score Sound"));
+	ScoreSound->SetupAttachment(RootComponent);
+	ScoreSound->SetAutoActivate(false);
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -252,6 +256,10 @@ void AFlappyBirdCharacter::CollisionOverlapStart(UPrimitiveComponent* Overlapped
 		else
 		{
 			OnCharacterPassed.Broadcast();
+			if (IsValid(ScoreSound))
+			{ 
+				ScoreSound->Play();
+			}
 		}
 	}
 	else

@@ -120,6 +120,9 @@ protected:
 		class UAudioComponent* GameSound;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		class UAudioComponent* ScoreSound;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		class UCapsuleComponent* theCapsule;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
